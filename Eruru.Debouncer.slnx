@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/解决方案项/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="samples/Eruru.DebouncerSample/Eruru.DebouncerSample.csproj" />
+  <Project Path="src/Eruru.Debouncer/Eruru.Debouncer.csproj" />
+  <Project Path="tests/Eruru.DebouncerTests/Eruru.DebouncerTests.csproj" />
+</Solution>

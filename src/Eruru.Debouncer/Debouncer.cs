@@ -80,24 +80,17 @@ namespace Eruru.Debouncer {
 		}
 
 		static void PerformCallback (Debouncer<TContext, TState> debouncer, TState? state) {
-			_ = debouncer.CallbackAsync?.Invoke (debouncer, state).ContinueWith (
-				static (task, state) => {
-					if (!task.IsFaulted) {
-						return;
-					}
-					if (state is not ValueTuple<Debouncer<TContext, TState>, TState> tuple) {
-						return;
-					}
-					if (tuple.Item1.OnException == null) {
-						Console.WriteLine (task.Exception);
-						Debug.WriteLine (task.Exception);
-						return;
-					}
-					tuple.Item1.OnException (tuple.Item1, task.Exception);
-				},
-				(debouncer, state),
-				CancellationToken.None, TaskContinuationOptions.RunContinuationsAsynchronously, TaskScheduler.Default
-			);
+			_ = debouncer.CallbackAsync?.Invoke (debouncer, state).ContinueWith (static (task, state) => {
+				if (state is not ValueTuple<Debouncer<TContext, TState>, TState> tuple || task.Exception == null) {
+					return;
+				}
+				if (tuple.Item1.OnException == null) {
+					Console.WriteLine (task.Exception);
+					Debug.WriteLine (task.Exception);
+					return;
+				}
+				tuple.Item1.OnException (tuple.Item1, task.Exception);
+			}, (debouncer, state), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
 		}
 
 	}

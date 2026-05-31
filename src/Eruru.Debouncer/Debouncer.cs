@@ -42,6 +42,7 @@ namespace Eruru.Debouncer {
 		}
 
 		public void Post (Func<Debouncer<TContext, TState>, TState?, Task> callbackAsync, TState? state = default) {
+			CheckDisposed ();
 #if NET
 			ArgumentNullException.ThrowIfNull (callbackAsync, nameof (callbackAsync));
 #else
@@ -49,8 +50,8 @@ namespace Eruru.Debouncer {
 				throw new ArgumentNullException (nameof (callbackAsync));
 			}
 #endif
-			CheckDisposed ();
 			lock (Lock) {
+				CheckDisposed ();
 				CallbackAsync = callbackAsync;
 				State = state;
 				Timer.Change (Time, Timeout.InfiniteTimeSpan);
@@ -58,7 +59,9 @@ namespace Eruru.Debouncer {
 		}
 
 		public void Cancel () {
+			CheckDisposed ();
 			lock (Lock) {
+				CheckDisposed ();
 				Timer.Change (Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 				CallbackAsync = null;
 				State = default;
@@ -73,7 +76,7 @@ namespace Eruru.Debouncer {
 		}
 
 		static void Timer_Elapsed (object? state) {
-			if (state is not Debouncer<TContext, TState> debouncer) {
+			if (state is not Debouncer<TContext, TState> debouncer || Volatile.Read (ref debouncer.DisposeState) != 0) {
 				return;
 			}
 			PerformCallback (debouncer, debouncer.State);

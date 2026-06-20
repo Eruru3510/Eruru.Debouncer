@@ -7,8 +7,8 @@
 		<Authors>Eruru</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<Version>1.0.1-preview1</Version>
-		<AssemblyVersion>1.0.0</AssemblyVersion>
-		<FileVersion>1.0.0</FileVersion>
+		<AssemblyVersion>1.0.1</AssemblyVersion>
+		<FileVersion>1.0.1</FileVersion>
 		<RepositoryUrl>https://github.com/Eruru3510/Eruru.Debouncer</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

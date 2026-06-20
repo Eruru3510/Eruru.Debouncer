@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace Eruru.Debouncer;
 
 public class Debouncer<TContext, TState> : IDisposable {
@@ -41,13 +39,6 @@ public class Debouncer<TContext, TState> : IDisposable {
 
 	public void Post (Func<Debouncer<TContext, TState>, TState?, Task> callbackAsync, TState? state = default) {
 		CheckDisposed ();
-#if NET
-		ArgumentNullException.ThrowIfNull (callbackAsync, nameof (callbackAsync));
-#else
-		if (callbackAsync == null) {
-			throw new ArgumentNullException (nameof (callbackAsync));
-		}
-#endif
 		lock (Lock) {
 			CheckDisposed ();
 			CallbackAsync = callbackAsync;
@@ -74,24 +65,34 @@ public class Debouncer<TContext, TState> : IDisposable {
 	}
 
 	static void Timer_Elapsed (object? state) {
-		if (state is not Debouncer<TContext, TState> debouncer || Volatile.Read (ref debouncer.DisposeState) != 0) {
+#if NET
+		ArgumentNullException.ThrowIfNull (state, nameof (state));
+#else
+		if (state == null) {
+			throw new ArgumentNullException (nameof (state));
+		}
+#endif
+		var debouncer = (Debouncer<TContext, TState>)state;
+		if (Volatile.Read (ref debouncer.DisposeState) != 0) {
 			return;
 		}
-		PerformCallback (debouncer, debouncer.State);
-	}
-
-	static void PerformCallback (Debouncer<TContext, TState> debouncer, TState? state) {
-		_ = debouncer.CallbackAsync?.Invoke (debouncer, state).ContinueWith (static (task, state) => {
-			if (state is not ValueTuple<Debouncer<TContext, TState>, TState> tuple || task.Exception == null) {
-				return;
-			}
-			if (tuple.Item1.OnException == null) {
-				Console.WriteLine (task.Exception);
-				Debug.WriteLine (task.Exception);
-				return;
-			}
-			tuple.Item1.OnException (tuple.Item1, task.Exception);
-		}, (debouncer, state), CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+		try {
+			_ = debouncer.CallbackAsync!.Invoke (debouncer, debouncer.State).ContinueWith (static (task, state) => {
+#if NET
+				ArgumentNullException.ThrowIfNull (state, nameof (state));
+#else
+				if (state == null) {
+					throw new ArgumentNullException (nameof (state));
+				}
+#endif
+				var debouncer = (Debouncer<TContext, TState>)state;
+				debouncer.OnException?.Invoke (debouncer, task.Exception!);
+			}, debouncer, CancellationToken.None, TaskContinuationOptions.OnlyOnFaulted, TaskScheduler.Default);
+#pragma warning disable CA1031 // 不捕获常规异常类型
+		} catch (Exception exception) {
+#pragma warning restore CA1031 // 不捕获常规异常类型
+			debouncer.OnException?.Invoke (debouncer, exception);
+		}
 	}
 
 }

@@ -1,6 +1,6 @@
 using Eruru.Debouncer;
 
-namespace Eruru.DebouncerTests; 
+namespace Eruru.DebouncerTests;
 
 public class DebouncerTest {
 

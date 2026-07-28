@@ -6,7 +6,7 @@
 
 		<Authors>Eruru</Authors>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<Version>1.0.1-preview1</Version>
+		<Version>1.0.1</Version>
 		<AssemblyVersion>1.0.1</AssemblyVersion>
 		<FileVersion>1.0.1</FileVersion>
 		<RepositoryUrl>https://github.com/Eruru3510/Eruru.Debouncer</RepositoryUrl>
